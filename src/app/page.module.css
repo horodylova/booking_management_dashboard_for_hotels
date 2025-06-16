@@ -15,7 +15,7 @@
   align-items: center;
   padding: 4px 8px;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 1rem;
   font-weight: 500;
 }
 
@@ -60,9 +60,11 @@
 .paidStatus {
   color: #22c55e;
   font-weight: 600;
+  font-size: 1.1rem;
 }
 
 .unpaidStatus {
   color: #ef4444;
   font-weight: 600;
+  font-size: 1.1rem;
 }

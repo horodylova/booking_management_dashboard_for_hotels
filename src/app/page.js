@@ -2,59 +2,24 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
-import styles from "./page.module.css";
 import { Grid, GridColumn } from "@progress/kendo-react-grid";
 import { process } from "@progress/kendo-data-query";
-import "@progress/kendo-theme-material/dist/all.css";
+import "@progress/kendo-theme-default/dist/all.css";
+import BooleanCell from "./components/cells/BooleanCell";
+import StatusCell from "./components/cells/StatusCell";
+import DateCell from "./components/cells/DateCell";
+import TimeCell from "./components/cells/TimeCell";
+import RoomCell from "./components/cells/RoomCell";
 
-const BooleanCell = (props) => {
-  return (
-    <td>{props.dataItem[props.field] ? '✅' : '❌'}</td>
-  )
-};
-
-const StatusCell = (props) => {
-  const status = props.dataItem[props.field];
-  let statusClass = '';
-  let statusIcon = '';
-  
-  switch(status) {
-    case 'Confirmed':
-      statusClass = styles.statusConfirmed;
-      statusIcon = '✓';
-      break;
-    case 'Cancelled':
-      statusClass = styles.statusCancelled;
-      statusIcon = '✗';
-      break;
-    case 'In process':
-      statusClass = styles.statusInProcess;
-      statusIcon = '⟳';
-      break;
-    default:
-      statusClass = '';
-      statusIcon = '';
-  }
-  
-  return (
-    <td>
-      <span className={`${styles.statusBadge} ${statusClass}`}>
-        {statusIcon} {status}
-      </span>
-    </td>
-  );
-};
-
-const DateCell = (props) => {
-  return (
-    <td>
-      {props.dataItem[props.field]}
-    </td>
-  );
-};
+import NotificationManager from "./components/notifications/NotificationManager";
+import { AppBar, AppBarSection, AppBarSpacer } from "@progress/kendo-react-layout";
+import Dashboard from "./components/Dashboard";
+import SearchPanel from "./components/SearchPanel";
+import ExportButton from "./components/ExportButton";
 
 export default function Home() {
   const [bookings, setBookings] = useState([]);
+  const [filteredBookings, setFilteredBookings] = useState([]);
   const [dataState, setDataState] = useState({
     skip: 0,
     take: 10,
@@ -69,6 +34,19 @@ export default function Home() {
   const [result, setResult] = useState({ data: [], total: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  
+  const filterOperators = {
+    text: [
+      { text: "Is equal to", operator: "eq" },
+      { text: "Contains", operator: "contains" },
+      { text: "Starts with", operator: "startswith" },
+      { text: "Ends with", operator: "endswith" }
+    ],
+    numeric: [
+      { text: "Is equal to", operator: "eq" }
+    ]
+  };
   
   useEffect(() => {
     setLoading(true);
@@ -80,8 +58,13 @@ export default function Home() {
         return response.json();
       })
       .then(data => {
-        setBookings(data);
-        setResult(process(data, dataState));
+        const processedData = data.map(item => ({
+          ...item,
+          room_number: parseInt(item.room_number, 10)
+        }));
+        setBookings(processedData);
+        setFilteredBookings(processedData);
+        setResult(process(processedData, dataState));
         setLoading(false);
       })
       .catch(error => {
@@ -93,25 +76,115 @@ export default function Home() {
   
   const onDataStateChange = (e) => {
     setDataState(e.dataState);
-    setResult(process(bookings, e.dataState));
+    setResult(process(filteredBookings, e.dataState));
+  };
+
+  const handleCellChange = (e) => {
+    try {
+      const newData = bookings.map(item => {
+        if (item === e.dataItem) {
+          return { ...item, [e.field]: e.value };
+        }
+        return item;
+      });
+      
+      setBookings(newData);
+      setFilteredBookings(newData);
+      setResult(process(newData, dataState));
+      showNotification('Data updated successfully', 'success');
+    } catch (err) {
+      showNotification('Please try again. Invalid input.', 'error');
+    }
+  };
+  
+  const handleCellError = (message) => {
+    showNotification(message, 'error');
+  };
+  
+  const showNotification = (message, type = 'error') => {
+    const id = Date.now();
+    const newNotification = {
+      id,
+      message,
+      type
+    };
+    
+    setNotifications(prev => [...prev, newNotification]);
+    
+    setTimeout(() => {
+      setNotifications(prev => prev.filter(notification => notification.id !== id));
+    }, 3000);
+  };
+  
+  const handleSearch = (searchParams) => {
+    let filtered = [...bookings];
+    
+    if (searchParams.searchText) {
+      filtered = filtered.filter(booking => 
+        booking.guest_name.toLowerCase().includes(searchParams.searchText.toLowerCase())
+      );
+    }
+    
+    if (searchParams.dateRange && searchParams.dateRange.start && searchParams.dateRange.end) {
+      const start = searchParams.dateRange.start;
+      const end = searchParams.dateRange.end;
+      
+      filtered = filtered.filter(booking => {
+        const parts = booking.check_in_date.split('/');
+        const bookingDate = new Date(parts[2], parts[1] - 1, parts[0]);
+        return bookingDate >= start && bookingDate <= end;
+      });
+    }
+    
+    if (searchParams.status) {
+      filtered = filtered.filter(booking => booking.status === searchParams.status);
+    }
+    
+    if (searchParams.source) {
+      filtered = filtered.filter(booking => booking.booking_source === searchParams.source);
+    }
+    
+    setFilteredBookings(filtered);
+    setResult(process(filtered, dataState));
   };
 
   return (
     <div>
+      <AppBar className="header">
+        <AppBarSection>
+          <h1 className="title">Booking Management</h1>
+        </AppBarSection>
+        <AppBarSpacer />
+        <AppBarSection>
+          <span className="hotel-name">Hotel Dashboard</span>
+        </AppBarSection>
+      </AppBar>
+      
       <main>
-        <h1>Booking Management</h1>
+        <NotificationManager 
+          notifications={notifications} 
+          setNotifications={setNotifications} 
+        />
+        
+        {!loading && !error && (
+          <>
+            <Dashboard bookings={bookings} />
+            <SearchPanel onSearch={handleSearch} />
+            <ExportButton data={filteredBookings} />
+          </>
+        )}
         
         <div>
           {loading ? (
             <p>Loading...</p>
           ) : error ? (
             <p>{error}</p>
-          ) : result.data.length === 0 ? (
-            <p>No records available</p>
           ) : (
             <Grid
               data={result}
-              filterable={true}
+              filterable={{
+                operators: filterOperators
+              }}
               sortable={true}
               pageable={{
                 buttonCount: 5,
@@ -121,16 +194,40 @@ export default function Home() {
                 previousNext: true
               }}
               onDataStateChange={onDataStateChange}
+              onItemChange={handleCellChange}
               {...dataState}
             >
-              <GridColumn field="booking_id" title="ID" width="70px" filterable={true} />
-              <GridColumn field="guest_name" title="Guest" filterable={true} />
-              <GridColumn field="check_in_date" title="Check In" cell={DateCell} filterable={true} />
-              <GridColumn field="check_out_date" title="Check Out" cell={DateCell} filterable={true} />
-              <GridColumn field="room_number" title="Room" width="100px" filterable={true} />
-              <GridColumn field="paid" title="Payment Status" cell={BooleanCell} filterable={true} />
-              <GridColumn field="booking_source" title="Source" filterable={true} />
-              <GridColumn field="status" title="Status" cell={StatusCell} filterable={true} />
+              <GridColumn field="booking_id" title="ID" width="80px" filterable={{
+                ui: false,
+                filter: 'numeric'
+              }} />
+              <GridColumn field="room_number" title="Room" width="100px" cells={{
+                data: (props) => <RoomCell {...props} onError={handleCellError} />
+              }} filterable={{
+                ui: false,
+                filter: 'numeric'
+              }} />
+              <GridColumn field="guest_name" title="Guest" filterable={{
+                ui: false
+              }} />
+              <GridColumn field="check_in_date" title="Check In Date" cells={{ data: DateCell }} filterable={{
+                ui: false
+              }} />
+              <GridColumn field="check_out_day" title="Check Out Date" cells={{ data: DateCell }} filterable={{
+                ui: false
+              }} />
+              <GridColumn field="check_in_time" title="Check In Time" cells={{ data: TimeCell }} filterable={{
+                ui: false
+              }} />
+              <GridColumn field="paid" title="Payment Status" cells={{ data: BooleanCell }} filterable={{
+                ui: false
+              }} />
+              <GridColumn field="booking_source" title="Source" filterable={{
+                ui: false
+              }} />
+              <GridColumn field="status" title="Status" cells={{ data: StatusCell }} filterable={{
+                ui: false
+              }} />
             </Grid>
           )}
         </div>

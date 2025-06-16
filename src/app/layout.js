@@ -1,5 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { initKendoLicense } from "./kendo-license-init";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,6 +18,10 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+  if (typeof window !== 'undefined') {
+    initKendoLicense();
+  }
+  
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
