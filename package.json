@@ -1,0 +1,25 @@
+{
+  "name": "booking_management_dashboard_for_hotels",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@progress/kendo-data-query": "^1.7.1",
+    "@progress/kendo-licensing": "^1.6.0",
+    "@progress/kendo-react-data-tools": "^11.1.0",
+    "@progress/kendo-react-dropdowns": "^11.1.0",
+    "@progress/kendo-react-grid": "^11.1.0",
+    "@progress/kendo-react-inputs": "^11.1.0",
+    "@progress/kendo-react-intl": "^11.1.0",
+    "@progress/kendo-theme-default": "^11.0.2",
+    "@progress/kendo-theme-material": "^11.0.2",
+    "next": "15.3.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}
