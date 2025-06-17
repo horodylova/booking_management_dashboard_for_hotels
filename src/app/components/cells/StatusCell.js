@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState } from "react";
+import React from "react";
 import styles from "../../page.module.css";
 
 const StatusCell = props => {
   const field = props.field || "";
   const dataItem = props.dataItem || {};
-  const [status, setStatus] = useState(dataItem[field] || "");
+  const status = dataItem[field] || "";
   
   let statusClass = '';
   let statusIcon = '';
@@ -31,7 +31,6 @@ const StatusCell = props => {
   
   const handleChange = (e) => {
     const newValue = e.target.value;
-    setStatus(newValue);
     
     if (props.onChange) {
       props.onChange({

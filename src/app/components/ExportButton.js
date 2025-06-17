@@ -8,7 +8,21 @@ export default function ExportButton({ data }) {
   const exportToExcel = () => {
     if (excelExportRef) {
       excelExportRef.save();
+      window.dispatchEvent(new CustomEvent('notification', {
+        detail: {
+          message: 'Data successfully exported to Excel',
+          type: 'success',
+          duration: 3000
+        }
+      }));
     }
+  };
+  
+  const prepareDataForExport = () => {
+    return data.map(item => ({
+      ...item,
+      paid: item.paid ? "Paid" : "Unpaid"
+    }));
   };
   
   return (
@@ -22,11 +36,10 @@ export default function ExportButton({ data }) {
       </Button>
       
       <ExcelExport
-        data={data}
+        data={prepareDataForExport()}
         fileName="hotel_bookings.xlsx"
         ref={(exporter) => { excelExportRef = exporter; }}
       >
-        <ExcelExportColumn field="booking_id" title="ID" />
         <ExcelExportColumn field="guest_name" title="Guest" />
         <ExcelExportColumn field="check_in_date" title="Check In Date" />
         <ExcelExportColumn field="check_out_day" title="Check Out Date" />

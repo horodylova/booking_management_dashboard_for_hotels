@@ -1,8 +1,27 @@
 import React, { useState } from "react";
-import { DateRangePicker } from "@progress/kendo-react-dateinputs";
+import { DateRangePicker, DateInput } from "@progress/kendo-react-dateinputs";
 import { DropDownList } from "@progress/kendo-react-dropdowns";
 import { Button } from "@progress/kendo-react-buttons";
 import { Input } from "@progress/kendo-react-inputs";
+
+const CustomDateInput = (props) => {
+  const { label, ...others } = props;
+  
+  return (
+    <div style={{ display: "flex", alignItems: "center" }}>
+      {label && (
+        <span style={{ 
+          marginRight: "8px", 
+          fontSize: "14px", 
+          whiteSpace: "nowrap" 
+        }}>
+          {label}
+        </span>
+      )}
+      <DateInput {...others} />
+    </div>
+  );
+};
 
 export default function SearchPanel({ onSearch }) {
   const [searchText, setSearchText] = useState("");
@@ -17,12 +36,22 @@ export default function SearchPanel({ onSearch }) {
   const sourceOptions = ["All", "Booking.com", "Airbnb", "Direct call", "Website booking"];
   
   const handleSearch = () => {
-    onSearch({
+    const searchParams = {
       searchText,
       dateRange,
       status: status === "All" ? null : status,
       source: source === "All" ? null : source
-    });
+    };
+    
+    onSearch(searchParams);
+    
+    window.dispatchEvent(new CustomEvent('notification', {
+      detail: {
+        message: 'Search filters applied',
+        type: 'info',
+        duration: 3000
+      }
+    }));
   };
   
   const handleReset = () => {
@@ -31,6 +60,14 @@ export default function SearchPanel({ onSearch }) {
     setStatus("All");
     setSource("All");
     onSearch({});
+    
+    window.dispatchEvent(new CustomEvent('notification', {
+      detail: {
+        message: 'Search filters have been reset',
+        type: 'warning',
+        duration: 3000
+      }
+    }));
   };
   
   return (
@@ -59,12 +96,7 @@ export default function SearchPanel({ onSearch }) {
         
         <div>
           <label style={{ display: "block", marginBottom: "5px", fontWeight: "500" }}>Date Range</label>
-          <style jsx>{`
-            /* Скрываем заголовки полей DateRangePicker */
-            .k-daterangepicker .k-label {
-              display: none !important;
-            }
-          `}</style>
+        
           <DateRangePicker
             value={dateRange}
             onChange={(e) => setDateRange(e.value)}
@@ -72,17 +104,8 @@ export default function SearchPanel({ onSearch }) {
             style={{ width: "100%" }}
             startDatePlaceholder="day/month/year"
             endDatePlaceholder="day/month/year"
-            rangeSettings={{ labels: false }}
-          />
-        </div>
-        
-        <div>
-          <label style={{ display: "block", marginBottom: "5px", fontWeight: "500" }}>Status</label>
-          <DropDownList
-            data={statusOptions}
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            style={{ width: "100%" }}
+            startDateInput={props => <CustomDateInput {...props} label="Start" />}
+            endDateInput={props => <CustomDateInput {...props} label="End" />}
           />
         </div>
         
@@ -95,11 +118,21 @@ export default function SearchPanel({ onSearch }) {
             style={{ width: "100%" }}
           />
         </div>
+        
+        <div>
+          <label style={{ display: "block", marginBottom: "5px", fontWeight: "500" }}>Status</label>
+          <DropDownList
+            data={statusOptions}
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            style={{ width: "100%" }}
+          />
+        </div>
       </div>
       
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
-        <Button primary="true" onClick={handleSearch}>Search</Button>
-        <Button onClick={handleReset} style={{ marginLeft: "10px" }}>Reset</Button>
+        <Button onClick={handleSearch} type="button" primary="true">Search</Button>
+        <Button onClick={handleReset} type="button" style={{ marginLeft: "10px" }}>Reset</Button>
       </div>
     </div>
   );

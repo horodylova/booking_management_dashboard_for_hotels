@@ -14,6 +14,7 @@ const NotificationManager = ({ notifications, setNotifications }) => {
             onClose={() => setNotifications(prev => 
               prev.filter(item => item.id !== notification.id)
             )}
+            duration={notification.duration || 3000}
           >
             <span>{notification.message}</span>
           </Notification>
