@@ -1,15 +1,46 @@
 'use client';
 
-import React, { useState } from "react";
+import React from "react";
 
 const BooleanCell = props => {
   const field = props.field || "";
   const dataItem = props.dataItem || {};
-  const [value, setValue] = useState(dataItem[field]);
+  const value = dataItem[field];
+  
+  if (props.filterCell) {
+    return (
+      <td>
+        <select
+          className="k-dropdown"
+          value={props.value || ''}
+          onChange={(e) => {
+            let filterValue = e.target.value;
+            if (filterValue === 'true') filterValue = true;
+            if (filterValue === 'false') filterValue = false;
+            
+            props.onChange({
+              value: filterValue,
+              operator: 'eq',
+              syntheticEvent: e.syntheticEvent
+            });
+          }}
+          style={{
+            width: '100%',
+            padding: '4px',
+            borderRadius: '4px',
+            border: '1px solid #ccc'
+          }}
+        >
+          <option value="">All</option>
+          <option value="true">Paid</option>
+          <option value="false">Not Paid</option>
+        </select>
+      </td>
+    );
+  }
   
   const handleChange = (e) => {
     const newValue = e.target.value === "true";
-    setValue(newValue);
     
     if (props.onChange) {
       props.onChange({

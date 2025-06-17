@@ -242,7 +242,17 @@ export default function Home() {
               <GridColumn field="check_in_date" title="Check In Date" cells={{ data: DateCell }} media="(min-width: 992px)" />
               <GridColumn field="check_out_day" title="Check Out Date" cells={{ data: DateCell }} media="(min-width: 992px)" />
               <GridColumn field="check_in_time" title="Check In Time" cells={{ data: TimeCell }} media="(min-width: 1200px)" />
-              <GridColumn field="paid" title="Payment Status" cells={{ data: BooleanCell }} media="(min-width: 768px)" />
+              <GridColumn 
+                field="paid" 
+                title="Payment Status" 
+                filter="boolean"
+                filterCell={BooleanCell}
+                cells={{ 
+                  data: BooleanCell
+                }} 
+                filterable={true}
+                media="(min-width: 768px)" 
+              />
               <GridColumn field="booking_source" title="Source" media="(min-width: 1200px)" />
               <GridColumn field="status" title="Status" cells={{ data: StatusCell }} />
             </Grid>
