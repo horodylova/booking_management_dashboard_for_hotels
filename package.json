@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npx kendo-ui-license activate && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "activate-license": "npx kendo-ui-license activate"
   },
   "dependencies": {
     "@progress/kendo-data-query": "^1.7.1",
