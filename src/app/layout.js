@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "Hotel Booking Management Dashboard",
   description: "A comprehensive dashboard for hotel booking management",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({ children }) {
