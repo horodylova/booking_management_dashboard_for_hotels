@@ -1,27 +1,9 @@
 import React, { useState } from "react";
-import { DateRangePicker, DateInput } from "@progress/kendo-react-dateinputs";
+import { DateRangePicker } from "@progress/kendo-react-dateinputs";
 import { DropDownList } from "@progress/kendo-react-dropdowns";
 import { Button } from "@progress/kendo-react-buttons";
 import { Input } from "@progress/kendo-react-inputs";
-
-const CustomDateInput = (props) => {
-  const { label, ...others } = props;
-  
-  return (
-    <div style={{ display: "flex", alignItems: "center" }}>
-      {label && (
-        <span style={{ 
-          marginRight: "8px", 
-          fontSize: "14px", 
-          whiteSpace: "nowrap" 
-        }}>
-          {label}
-        </span>
-      )}
-      <DateInput {...others} />
-    </div>
-  );
-};
+import CustomDateInput from "./CustomDateInput";
 
 export default function SearchPanel({ onSearch }) {
   const [searchText, setSearchText] = useState("");

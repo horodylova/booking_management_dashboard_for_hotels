@@ -117,3 +117,22 @@ main {
     background-color: #34495e;
   }
 }
+
+.k-grid-content .k-detail-row .k-detail-cell {
+  padding: 0;
+  background-color: #f9f9f9;
+}
+
+@media (max-width: 767px) {
+  .k-grid {
+    font-size: 0.9rem;
+  }
+  
+  .k-grid-header .k-header {
+    font-size: 1rem;
+  }
+  
+  main {
+    padding: 1rem;
+  }
+}

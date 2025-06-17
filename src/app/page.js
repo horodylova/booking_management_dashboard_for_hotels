@@ -15,6 +15,7 @@ import NotificationManager from "./components/notifications/NotificationManager"
 import { AppBar, AppBarSection, AppBarSpacer } from "@progress/kendo-react-layout";
 import SearchPanel from "./components/SearchPanel";
 import ExportButton from "./components/ExportButton";
+import LoaderComponent from "./components/LoaderComponent";
 
 export default function Home() {
   const [bookings, setBookings] = useState([]);
@@ -171,7 +172,7 @@ export default function Home() {
   return (
     <div>
       <AppBar className="header" style={{
-        background: '#e6f7ff',
+        background: 'rgba(231, 76, 60, 0.1)',
         boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
         borderBottom: '1px solid rgba(0, 0, 0, 0.05)',
         padding: '0.5rem 1.5rem',
@@ -215,7 +216,7 @@ export default function Home() {
         
         <div>
           {loading ? (
-            <p>Loading...</p>
+            <LoaderComponent />
           ) : error ? (
             <p>{error}</p>
           ) : (
@@ -236,13 +237,13 @@ export default function Home() {
             >
               <GridColumn field="room_number" title="Room" width="150px" cells={{
                 data: (props) => <RoomCell {...props} onError={handleCellError} />
-              }} />
+              }} media="(min-width: 768px)" />
               <GridColumn field="guest_name" title="Guest" />
-              <GridColumn field="check_in_date" title="Check In Date" cells={{ data: DateCell }} />
-              <GridColumn field="check_out_day" title="Check Out Date" cells={{ data: DateCell }} />
-              <GridColumn field="check_in_time" title="Check In Time" cells={{ data: TimeCell }} />
-              <GridColumn field="paid" title="Payment Status" cells={{ data: BooleanCell }} />
-              <GridColumn field="booking_source" title="Source" />
+              <GridColumn field="check_in_date" title="Check In Date" cells={{ data: DateCell }} media="(min-width: 992px)" />
+              <GridColumn field="check_out_day" title="Check Out Date" cells={{ data: DateCell }} media="(min-width: 992px)" />
+              <GridColumn field="check_in_time" title="Check In Time" cells={{ data: TimeCell }} media="(min-width: 1200px)" />
+              <GridColumn field="paid" title="Payment Status" cells={{ data: BooleanCell }} media="(min-width: 768px)" />
+              <GridColumn field="booking_source" title="Source" media="(min-width: 1200px)" />
               <GridColumn field="status" title="Status" cells={{ data: StatusCell }} />
             </Grid>
           )}
